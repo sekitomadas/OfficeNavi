@@ -1,4 +1,3 @@
--- Active: 1734412088091@@127.0.0.1@5432@seat_management
 CREATE DATABASE seat_management;
 
 CREATE TABLE users (
