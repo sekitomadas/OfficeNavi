@@ -58,12 +58,14 @@ MVP対象は以下とする。
   "details": [
     {
       "field": "email",
-      "reason": "must be a well-formed email address"
+      "reason": "メールアドレスの形式が不正です"
     }
   ],
   "timestamp": "2026-02-19T10:00:00Z"
 }
 ```
+
+- MVPでは`reason`は日本語文言で返却する（将来、多言語対応時は`code`中心の運用へ移行可能）。
 
 ### 3.5 ステータスコード方針
 
@@ -214,7 +216,7 @@ MVP対象は以下とする。
 
 ```json
 {
-  "assignmentId": 100,
+  "userSeatId": 100,
   "userId": 1,
   "seatId": 10,
   "startTime": "2026-02-19T10:05:00Z"
