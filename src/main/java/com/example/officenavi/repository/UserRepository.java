@@ -13,8 +13,7 @@ public class UserRepository {
 	private static final RowMapper<UserEntity> USER_ROW_MAPPER = (rs, rowNum) -> {
 		UserEntity entity = new UserEntity(
 				rs.getString("name"),
-				rs.getString("email"),
-				rs.getString("password_hash")
+				rs.getString("email")
 		);
 		entity.setId(rs.getInt("id"));
 		entity.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
@@ -30,7 +29,7 @@ public class UserRepository {
 
 	public List<UserEntity> findAll() {
 		String sql = """
-				SELECT id, name, email, password_hash, created_at, updated_at
+				SELECT id, name, email, created_at, updated_at
 				FROM users
 				ORDER BY id ASC
 				""";

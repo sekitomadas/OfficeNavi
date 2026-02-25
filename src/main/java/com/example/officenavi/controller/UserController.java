@@ -3,7 +3,6 @@ package com.example.officenavi.controller;
 import com.example.officenavi.domain.user.UserResponse;
 import com.example.officenavi.service.UserService;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +20,10 @@ public class UserController {
     }
 
     /**
-     * ユーザの一覧を取得するエンドポイント
+     * 社員の一覧を取得するエンドポイント
      * @return
      */
-    @GetMapping("/users")
+    @GetMapping("/employees")
     public List<UserResponse> getUsers() {
         return userService.getUsers();
     }

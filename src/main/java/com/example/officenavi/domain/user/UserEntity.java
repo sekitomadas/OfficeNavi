@@ -10,6 +10,10 @@ public class UserEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public UserEntity(String name, String email) {
+        this(name, email, null);
+    }
+
     public UserEntity(String name, String email, String passwordHash) {
         this.name = name;
         this.email = email;
