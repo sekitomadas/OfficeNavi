@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * 従業員情報のデータアクセスを担当するリポジトリです。
+ */
 @Repository
 public class UserRepository {
 
@@ -23,10 +26,20 @@ public class UserRepository {
 
 	private final JdbcTemplate jdbcTemplate;
 
+	/**
+	 * コンストラクタインジェクションで JdbcTemplate を受け取ります。
+	 *
+	 * @param jdbcTemplate JDBC操作を行うテンプレート
+	 */
 	public UserRepository(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	/**
+	 * users テーブルから従業員一覧を取得します。
+	 *
+	 * @return 従業員エンティティ一覧
+	 */
 	public List<UserEntity> findAll() {
 		String sql = """
 				SELECT id, name, email, created_at, updated_at

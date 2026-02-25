@@ -7,15 +7,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 従業員の業務ロジックを扱うサービスです。
+ */
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
+    /**
+     * コンストラクタインジェクションでリポジトリを受け取ります。
+     *
+     * @param userRepository 従業員リポジトリ
+     */
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * 従業員一覧を取得し、レスポンス形式へ変換して返します。
+     *
+     * @return 従業員一覧レスポンス
+     */
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
                 .map(this::toResponse)
@@ -23,9 +36,10 @@ public class UserService {
     }
 
     /**
-     * UserEntityをUserResponseに変換するユーティリティメソッド
-     * @param userEntity
-     * @return
+     * UserEntityをUserResponseに変換します。
+     *
+     * @param userEntity 従業員エンティティ
+     * @return 従業員レスポンス
      */
     private UserResponse toResponse(UserEntity userEntity) {
         return new UserResponse(

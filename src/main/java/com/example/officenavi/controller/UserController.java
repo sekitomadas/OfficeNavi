@@ -9,21 +9,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 従業員関連APIを提供するコントローラーです。
+ */
 @RestController
 @RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
 
+    /**
+     * コンストラクタインジェクションでサービスを受け取ります。
+     *
+     * @param userService 従業員サービス
+     */
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     /**
-     * 社員の一覧を取得するエンドポイント
-     * @return
+     * 従業員一覧を取得します。
+     *
+     * @return 従業員一覧レスポンス
      */
-    @GetMapping("/employees")
+    @GetMapping("/users")
     public List<UserResponse> getUsers() {
         return userService.getUsers();
     }

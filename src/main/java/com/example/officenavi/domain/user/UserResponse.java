@@ -1,5 +1,8 @@
 package com.example.officenavi.domain.user;
 
+/**
+ * 従業員一覧APIで返却するレスポンスDTOです。
+ */
 public class UserResponse {
     private Integer id;
     private String name;
