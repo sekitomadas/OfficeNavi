@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: officenavi
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${OFFICE_NAVI_DB_NAME:office-navi}
+    username: ${OFFICE_NAVI_DB_USER:postgres}
+    password: ${OFFICE_NAVI_DB_PASS:postgres}
+
+# server:
+#   servlet:
+#     context-path: /office-navi
