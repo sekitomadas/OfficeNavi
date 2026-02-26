@@ -1,8 +1,13 @@
 package com.example.officenavi.controller;
 
+import com.example.officenavi.domain.user.UserRegisterRequest;
 import com.example.officenavi.domain.user.UserResponse;
 import com.example.officenavi.service.UserService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +40,18 @@ public class UserController {
     @GetMapping("/users")
     public List<UserResponse> getUsers() {
         return userService.getUsers();
+    }
+
+    /**
+     * 社員を登録します。
+     *
+     * @param request 社員登録リクエスト
+     * @return 201 Created
+     */
+    @PostMapping("/users")
+    public ResponseEntity<Void> registerUser(@RequestBody UserRegisterRequest request) {
+        userService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     
 }
