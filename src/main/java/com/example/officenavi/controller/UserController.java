@@ -1,8 +1,16 @@
 package com.example.officenavi.controller;
 
+import com.example.officenavi.domain.user.UserRegisterRequest;
+import com.example.officenavi.domain.user.UserRegisterResponse;
 import com.example.officenavi.domain.user.UserResponse;
 import com.example.officenavi.service.UserService;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +43,19 @@ public class UserController {
     @GetMapping("/users")
     public List<UserResponse> getUsers() {
         return userService.getUsers();
+    }
+
+    /**
+        * 社員を登録します。
+        * リクエストは {@code @Valid} により検証され、入力不正時は400を返します。
+     *
+     * @param request 社員登録リクエスト
+         * @return 201 Created（登録された社員情報）
+     */
+    @PostMapping("/users")
+        public ResponseEntity<UserRegisterResponse> registerUser(@Valid @RequestBody UserRegisterRequest request) {
+            UserRegisterResponse response = userService.registerUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
 }

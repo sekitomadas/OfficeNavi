@@ -1,8 +1,10 @@
 package com.example.officenavi.repository;
 
 import com.example.officenavi.domain.user.UserEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,14 +26,14 @@ public class UserRepository {
 		return entity;
 	};
 
-	private final JdbcTemplate jdbcTemplate;
+	private final NamedParameterJdbcTemplate jdbcTemplate;
 
 	/**
-	 * コンストラクタインジェクションで JdbcTemplate を受け取ります。
+	 * コンストラクタインジェクションで NamedParameterJdbcTemplate を受け取ります。
 	 *
 	 * @param jdbcTemplate JDBC操作を行うテンプレート
 	 */
-	public UserRepository(JdbcTemplate jdbcTemplate) {
+	public UserRepository(NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
@@ -47,5 +49,24 @@ public class UserRepository {
 				ORDER BY id ASC
 				""";
 		return jdbcTemplate.query(sql, USER_ROW_MAPPER);
+	}
+
+	/**
+	 * users テーブルに従業員を登録します。
+	 *
+	 * @param user 登録する従業員エンティティ（passwordHash を含む）
+	 * @return 登録後の従業員エンティティ
+	 */
+	public UserEntity registerUser(UserEntity user) {
+		String sql = """
+				INSERT INTO users (name, email, password_hash, created_at, updated_at)
+				VALUES (:name, :email, :password, NOW(), NOW())
+				RETURNING id, name, email, created_at, updated_at
+				""";
+		SqlParameterSource param = new MapSqlParameterSource()
+				.addValue("name", user.getName())
+				.addValue("email", user.getEmail())
+				.addValue("password", user.getPasswordHash());
+		return jdbcTemplate.queryForObject(sql, param, USER_ROW_MAPPER);
 	}
 }

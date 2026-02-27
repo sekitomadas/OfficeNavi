@@ -86,6 +86,10 @@
 - DB アクセスはRepository層に集約する
 - ロジックはService層に集約し、Controllerを薄く保つ
 
+## API仕様ドキュメント
+
+- APIの詳細仕様（リクエスト/レスポンス/バリデーション条件）は `docs/api-design.md` を参照
+
 ---
 
 ## MVP（最小構成）
