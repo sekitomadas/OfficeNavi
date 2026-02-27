@@ -1,5 +1,7 @@
 package com.example.officenavi.controller;
 
+import com.example.officenavi.exception.ResourceNotFoundException;
+import com.example.officenavi.exception.SeatAlreadyInUseException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +58,41 @@ public class ApiExceptionHandler {
                 "reason", "既に使用されているメールアドレスです"
         ));
         response.put("details", details);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    /**
+     * リソース未存在エラーを処理します。
+     *
+     * @param ex リソース未存在例外
+     * @return 404レスポンス
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("code", ex.getCode());
+        response.put("message", ex.getMessage());
+        response.put("details", List.of());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * 座席利用中エラーを処理します。
+     *
+     * @param ex 座席利用中例外
+     * @return 409レスポンス
+     */
+    @ExceptionHandler(SeatAlreadyInUseException.class)
+    public ResponseEntity<Map<String, Object>> handleSeatAlreadyInUse(SeatAlreadyInUseException ex) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("code", ex.getCode());
+        response.put("message", ex.getMessage());
+        response.put("details", List.of(Map.of(
+                "field", "seatId",
+                "reason", "既に他のユーザーが利用中です"
+        )));
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
