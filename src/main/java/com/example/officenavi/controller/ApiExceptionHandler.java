@@ -1,0 +1,82 @@
+package com.example.officenavi.controller;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * API全体の例外を共通形式のレスポンスへ変換するハンドラーです。
+ */
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    /**
+     * リクエストボディのバリデーション失敗を処理します。
+     *
+     * @param ex バリデーション例外
+     * @return フィールドごとのエラー情報を含む400レスポンス
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationError(MethodArgumentNotValidException ex) {
+        List<Map<String, Object>> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(this::toError)
+                .toList();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("message", "validation error");
+        response.put("errors", errors);
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
+     * 一意制約違反（メールアドレス重複）を処理します。
+     *
+     * @param ex データ整合性違反例外
+     * @return 競合エラー情報を含む409レスポンス
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("code", "DUPLICATE_EMAIL");
+        response.put("message", "メールアドレスが既に登録されています");
+
+        List<Map<String, Object>> details = List.of(Map.of(
+                "field", "email",
+                "reason", "既に使用されているメールアドレスです"
+        ));
+        response.put("details", details);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    /**
+     * フィールドエラーをレスポンス用のMapへ変換します。
+     * password は機微情報のため rejectedValue を返しません。
+     *
+     * @param fieldError フィールドエラー
+     * @return レスポンス用エラー情報
+     */
+    private Map<String, Object> toError(FieldError fieldError) {
+        Map<String, Object> error = new LinkedHashMap<>();
+        error.put("field", fieldError.getField());
+        error.put("message", fieldError.getDefaultMessage());
+
+        if (!"password".equalsIgnoreCase(fieldError.getField())) {
+            Object rejectedValue = fieldError.getRejectedValue();
+            error.put("rejectedValue", rejectedValue == null ? null : String.valueOf(rejectedValue));
+        }
+
+        return error;
+    }
+}

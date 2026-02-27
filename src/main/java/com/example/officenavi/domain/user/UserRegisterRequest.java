@@ -1,11 +1,24 @@
 package com.example.officenavi.domain.user;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 /**
  * 社員登録APIのリクエストです。
  */
 public class UserRegisterRequest {
+    @NotBlank(message = "名前は必須です")
+    @Size(max = 100, message = "名前は1~100文字以内で入力してください")
     private String name;
+    @NotBlank(message = "メールアドレスは必須です")
+    @Size(min = 8, max = 255, message = "メールアドレスは8~255文字以内で入力してください")
+    @Email(message = "有効なメールアドレスを入力してください")
     private String email;
+    @NotBlank(message = "パスワードは必須です")
+    @Size(min = 8, max = 255, message = "パスワードは8~255文字以内で入力してください")  
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",message = "passwordは大文字・小文字・数字をそれぞれ1文字以上含めてください")
     private String password;
 
     public UserRegisterRequest() {

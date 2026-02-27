@@ -55,17 +55,18 @@ public class UserRepository {
 	 * users テーブルに従業員を登録します。
 	 *
 	 * @param user 登録する従業員エンティティ（passwordHash を含む）
+	 * @return 登録後の従業員エンティティ
 	 */
-	
-	public void registerUser(UserEntity user){
+	public UserEntity registerUser(UserEntity user) {
 		String sql = """
-				INSERT INTO users (name, email, password_hash,created_at, updated_at)
-				VALUES (:name, :email,:password, NOW(), NOW())
+				INSERT INTO users (name, email, password_hash, created_at, updated_at)
+				VALUES (:name, :email, :password, NOW(), NOW())
+				RETURNING id, name, email, created_at, updated_at
 				""";
 		SqlParameterSource param = new MapSqlParameterSource()
-				.addValue("name",user.getName())
+				.addValue("name", user.getName())
 				.addValue("email", user.getEmail())
 				.addValue("password", user.getPasswordHash());
-		jdbcTemplate.update(sql, param);	
+		return jdbcTemplate.queryForObject(sql, param, USER_ROW_MAPPER);
 	}
 }

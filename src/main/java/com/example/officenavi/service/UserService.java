@@ -2,6 +2,7 @@ package com.example.officenavi.service;
 
 import com.example.officenavi.domain.user.UserEntity;
 import com.example.officenavi.domain.user.UserRegisterRequest;
+import com.example.officenavi.domain.user.UserRegisterResponse;
 import com.example.officenavi.domain.user.UserResponse;
 import com.example.officenavi.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,8 +45,9 @@ public class UserService {
      * 社員を登録します。
      *
      * @param request 社員登録リクエスト
+     * @return 社員登録レスポンス
      */
-    public void registerUser(UserRegisterRequest request) {
+    public UserRegisterResponse registerUser(UserRegisterRequest request) {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
 
         UserEntity user = new UserEntity(
@@ -54,7 +56,14 @@ public class UserService {
                 hashedPassword
         );
 
-        userRepository.registerUser(user);
+        UserEntity createdUser = userRepository.registerUser(user);
+
+        return new UserRegisterResponse(
+                createdUser.getId(),
+                createdUser.getName(),
+                createdUser.getEmail(),
+                createdUser.getCreatedAt()
+        );
     }
 
     /**
