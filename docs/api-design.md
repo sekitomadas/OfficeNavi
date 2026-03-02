@@ -10,6 +10,7 @@ MVP対象は以下とする。
 - 社員一覧の取得
 - 社員の現在位置（席・エリア）の登録
 - 社員の現在位置の取得
+- 社員の退席
 
 ※ 認証・認可、履歴参照API、論理削除はMVP対象外。
 
@@ -87,6 +88,7 @@ MVP対象は以下とする。
 | 3   | GET    | `/api/seats`                       | 座席（エリア）一覧取得 |
 | 4   | POST   | `/api/user-seats`                  | 社員の現在位置登録     |
 | 5   | GET    | `/api/users/{userId}/current-seat` | 社員の現在位置取得     |
+| 6   | POST   | `/api/user-seats/leave`            | 社員の退席             |
 
 ---
 
@@ -213,8 +215,9 @@ MVP対象は以下とする。
 
 1. `userId`が存在しない場合は`404`
 2. `seatId`が存在しない場合は`404`
-3. 同一ユーザーの有効レコード（`end_time IS NULL`）がある場合、`end_time = now()`でクローズ
-4. 新規レコードを`user_seats`へ登録（`start_time = now()`, `end_time = NULL`）
+3. 指定された`seatId`を他ユーザーが利用中（`end_time IS NULL`）の場合は`409`
+4. 同一ユーザーの有効レコード（`end_time IS NULL`）がある場合、`end_time = now()`でクローズ
+5. 新規レコードを`user_seats`へ登録（`start_time = now()`, `end_time = NULL`）
 
 ### Success Response
 
@@ -233,6 +236,7 @@ MVP対象は以下とする。
 
 - `400` 入力不正
 - `404` user/seat未存在
+- `409` 指定seatが他ユーザーにより利用中
 
 ---
 
@@ -273,13 +277,51 @@ MVP対象は以下とする。
 
 ---
 
+## 5.6 社員の退席
+
+- Method: `POST`
+- Path: `/api/user-seats/leave`
+
+### Request Body
+
+```json
+{
+  "userId": 1
+}
+```
+
+### 業務ルール
+
+1. `userId`が存在しない場合は`404`
+2. 対象ユーザーの有効レコード（`end_time IS NULL`）がない場合は`404`
+3. 対象ユーザーの有効レコードを1件クローズする（`end_time = now()`）
+
+### Success Response
+
+- Status: `200 OK`
+
+```json
+{
+  "userId": 1,
+  "leftAt": "2026-02-19T10:20:00Z"
+}
+```
+
+### Error
+
+- `400` 入力不正
+- `404` user未存在 / 在席情報なし
+
+---
+
 ## 6. 例外・エラーハンドリング設計
 
 - `@RestControllerAdvice`で例外を集約し、エラー形式を統一
 - 想定例外とHTTPマッピング
   - `MethodArgumentNotValidException` -> `400`
-  - `EntityNotFoundException`（業務独自） -> `404`
-  - `DuplicateResourceException`（業務独自） -> `409`
+  - `ResourceNotFoundException`（業務独自） -> `404`
+  - `SeatAlreadyInUseException`（業務独自） -> `409`
+  - `DataIntegrityViolationException`（一意制約違反など） -> `409`
   - その他 -> `500`
 
 ---
