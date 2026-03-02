@@ -1,6 +1,8 @@
 package com.example.officenavi.service;
 
 import com.example.officenavi.domain.userseat.UserSeatEntity;
+import com.example.officenavi.domain.userseat.UserSeatLeaveRequest;
+import com.example.officenavi.domain.userseat.UserSeatLeaveResponse;
 import com.example.officenavi.domain.userseat.UserSeatRegisterRequest;
 import com.example.officenavi.domain.userseat.UserSeatRegisterResponse;
 import com.example.officenavi.exception.ResourceNotFoundException;
@@ -8,6 +10,8 @@ import com.example.officenavi.exception.SeatAlreadyInUseException;
 import com.example.officenavi.repository.UserSeatRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 /**
  * 在席情報の業務ロジックを扱うサービスです。
@@ -56,5 +60,28 @@ public class UserSeatService {
                 userSeatEntity.getSeatId(),
                 userSeatEntity.getStartTime()
         );
+    }
+
+    /**
+     * 社員を退席状態に更新します。
+     *
+     * @param request 退席リクエスト
+     * @return 退席レスポンス
+     */
+    @Transactional
+    public UserSeatLeaveResponse leaveCurrentSeat(UserSeatLeaveRequest request) {
+        Integer userId = request.getUserId();
+
+        if (!userSeatRepository.existsUser(userId)) {
+            throw new ResourceNotFoundException("USER_NOT_FOUND", "指定されたuserIdは存在しません");
+        }
+
+        LocalDateTime leftAt = LocalDateTime.now();
+        int updatedCount = userSeatRepository.closeOneCurrentSeat(userId, leftAt);
+        if (updatedCount == 0) {
+            throw new ResourceNotFoundException("CURRENT_SEAT_NOT_FOUND", "対象ユーザーの現在位置が登録されていません");
+        }
+
+        return new UserSeatLeaveResponse(userId, leftAt);
     }
 }
