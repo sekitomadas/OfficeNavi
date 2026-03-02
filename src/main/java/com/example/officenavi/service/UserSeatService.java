@@ -1,5 +1,7 @@
 package com.example.officenavi.service;
 
+import com.example.officenavi.domain.userseat.UserCurrentSeatEntity;
+import com.example.officenavi.domain.userseat.UserCurrentSeatResponse;
 import com.example.officenavi.domain.userseat.UserSeatEntity;
 import com.example.officenavi.domain.userseat.UserSeatLeaveRequest;
 import com.example.officenavi.domain.userseat.UserSeatLeaveResponse;
@@ -83,5 +85,34 @@ public class UserSeatService {
         }
 
         return new UserSeatLeaveResponse(userId, leftAt);
+    }
+
+    /**
+     * 社員の現在位置を取得します。
+     *
+     * @param userId ユーザーID
+     * @return 現在位置取得レスポンス
+     */
+    public UserCurrentSeatResponse getCurrentSeat(Integer userId) {
+        if (!userSeatRepository.existsUser(userId)) {
+            throw new ResourceNotFoundException("USER_NOT_FOUND", "指定されたuserIdは存在しません");
+        }
+
+        UserCurrentSeatEntity entity = userSeatRepository.findCurrentSeatByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "CURRENT_SEAT_NOT_FOUND",
+                        "対象ユーザーの現在位置が登録されていません"
+                ));
+
+        return new UserCurrentSeatResponse(
+                entity.getUserId(),
+                entity.getUserName(),
+                new UserCurrentSeatResponse.SeatInfo(
+                        entity.getSeatId(),
+                        entity.getSeatName(),
+                        entity.getSeatLocation()
+                ),
+                entity.getSince()
+        );
     }
 }
