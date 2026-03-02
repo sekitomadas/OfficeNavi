@@ -1,5 +1,7 @@
 package com.example.officenavi.controller;
 
+import com.example.officenavi.domain.userseat.UserSeatLeaveRequest;
+import com.example.officenavi.domain.userseat.UserSeatLeaveResponse;
 import com.example.officenavi.domain.userseat.UserSeatRegisterRequest;
 import com.example.officenavi.domain.userseat.UserSeatRegisterResponse;
 import com.example.officenavi.service.UserSeatService;
@@ -40,5 +42,18 @@ public class UserSeatController {
             @Valid @RequestBody UserSeatRegisterRequest request) {
         UserSeatRegisterResponse response = userSeatService.registerCurrentSeat(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 社員を退席状態に更新します。
+     *
+     * @param request 退席リクエスト
+     * @return 200 OK（退席情報）
+     */
+    @PostMapping("/user-seats/leave")
+    public ResponseEntity<UserSeatLeaveResponse> leaveCurrentSeat(
+            @Valid @RequestBody UserSeatLeaveRequest request) {
+        UserSeatLeaveResponse response = userSeatService.leaveCurrentSeat(request);
+        return ResponseEntity.ok(response);
     }
 }

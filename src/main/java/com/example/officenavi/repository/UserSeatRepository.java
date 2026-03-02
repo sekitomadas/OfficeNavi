@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 /**
  * 在席情報のデータアクセスを担当するリポジトリです。
  */
@@ -95,6 +97,32 @@ public class UserSeatRepository {
                 """;
         SqlParameterSource param = new MapSqlParameterSource().addValue("userId", userId);
         jdbcTemplate.update(sql, param);
+    }
+
+    /**
+     * 指定ユーザーの現在有効な在席情報を1件クローズします。
+     *
+     * @param userId ユーザーID
+     * @param leftAt 退席時刻
+     * @return 更新件数
+     */
+    public int closeOneCurrentSeat(Integer userId, LocalDateTime leftAt) {
+        String sql = """
+                UPDATE user_seats
+                SET end_time = :leftAt
+                WHERE id = (
+                    SELECT id
+                    FROM user_seats
+                    WHERE user_id = :userId
+                      AND end_time IS NULL
+                    ORDER BY start_time DESC
+                    LIMIT 1
+                )
+                """;
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("userId", userId)
+                .addValue("leftAt", leftAt);
+        return jdbcTemplate.update(sql, param);
     }
 
     /**
